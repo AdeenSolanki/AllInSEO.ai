@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Keyword Generator Tool</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --tech-blue: #3B82F6;
+            --deep-navy: #0F172A;
+            --electric-purple: #8B5CF6;
+            --emerald-green: #10B981;
+            --clean-white: #FFFFFF;
+        }
+        
+        body {
+            background: var(--deep-navy);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            background: var(--clean-white);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.4);
+            overflow: hidden;
+        }
+        
+        .left-panel {
+            background: var(--clean-white);
+            padding: 40px;
+            min-height: 600px;
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .right-panel {
+            padding: 40px;
+            background: var(--clean-white);
+            min-height: 600px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .header-icon {
+            background: linear-gradient(135deg, var(--tech-blue) 0%, var(--electric-purple) 100%);
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        
+        h1 {
+            color: var(--deep-navy);
+            font-weight: 700;
+        }
+        
+        .session-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--electric-purple);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--electric-purple);
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--deep-navy);
+            margin-bottom: 8px;
+        }
+        
+        .form-label i {
+            color: var(--electric-purple);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            background: var(--clean-white);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--tech-blue);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            background: var(--clean-white);
+        }
+        
+        .btn-generate {
+            background: var(--tech-blue);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--clean-white);
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-generate:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+        
+        .btn-generate:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 4px solid var(--electric-purple);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .info-box i {
+            color: var(--electric-purple);
+        }
+        
+        .info-box strong {
+            color: var(--deep-navy);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .output-container {
+            border: 2px dashed #e5e7eb;
+            border-radius: 15px;
+            min-height: 500px;
+            padding: 30px;
+            background: var(--clean-white);
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: var(--electric-purple);
+            opacity: 0.5;
+        }
+        
+        .spinner-border-custom {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+            color: var(--tech-blue);
+        }
+        
+        .right-panel h2 {
+            color: var(--deep-navy);
+            font-weight: 700;
+        }
+        
+        .right-panel h2 i {
+            color: var(--emerald-green);
+        }
+        
+        /* Custom scrollbar for output */
+        .right-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .right-panel::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .right-panel::-webkit-scrollbar-thumb {
+            background: var(--tech-blue);
+            border-radius: 10px;
+        }
+        
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--electric-purple);
+        }
+        
+        /* Footer */
+        .footer-text {
+            color: var(--clean-white);
+            font-size: 14px;
+        }
+        
+        .footer-text i {
+            color: var(--electric-purple);
+        }
+        
+        /* Success styling for output */
+        .card-header.bg-success {
+            background: var(--emerald-green) !important;
+        }
+        
+        /* Loading text colors */
+        .loading-spinner h5 {
+            color: var(--deep-navy);
+        }
+        
+        .loading-spinner .text-muted {
+            color: #64748b !important;
+        }
+        
+        /* Links */
+        a {
+            color: var(--tech-blue);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            color: var(--electric-purple);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="main-container">
+                    <div class="row g-0">
+                        <!-- Left Panel - Input Form -->
+                        <div class="col-lg-6">
+                            <div class="left-panel">
+                                <div class="header-icon">
+                                    <i class="bi bi-search text-white" style="font-size: 30px;"></i>
+                                </div>
+                                
+                                <h1 class="mb-3">AI Keyword Generator</h1>
+                                <p class="text-muted mb-4">Generate high-quality, SEO-optimized keywords with AI-powered analysis</p>
+                                
+                                <!-- Session Badge -->
+                                <div class="session-badge">
+                                    <i class="bi bi-cpu me-2"></i>
+                                    <strong>Session ID:</strong> <span id="sessionId">Loading...</span>
+                                </div>
+                                
+                                <!-- Form -->
+                                <form id="keywordForm">
+                                    <!-- Topic Input -->
+                                    <div class="mb-4">
+                                        <label for="topic" class="form-label">
+                                            <i class="bi bi-lightbulb-fill me-2"></i>Topic / Keyword
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            class="form-control" 
+                                            id="topic" 
+                                            placeholder="e.g., AI tools for digital marketing"
+                                            required>
+                                    </div>
+                                    
+                                    <!-- Target Country -->
+                                    <div class="mb-4">
+                                        <label for="targetCountry" class="form-label">
+                                            <i class="bi bi-globe-americas me-2"></i>Target Country
+                                        </label>
+                                        <select class="form-select" id="targetCountry">
+                                            <option value="US" selected>United States</option>
+                                            <option value="UK">United Kingdom</option>
+                                            <option value="CA">Canada</option>
+                                            <option value="AU">Australia</option>
+                                            <option value="IN">India</option>
+                                            <option value="DE">Germany</option>
+                                            <option value="FR">France</option>
+                                            <option value="ES">Spain</option>
+                                            <option value="BR">Brazil</option>
+                                            <option value="JP">Japan</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Target Language -->
+                                    <div class="mb-4">
+                                        <label for="targetLanguage" class="form-label">
+                                            <i class="bi bi-translate me-2"></i>Target Language
+                                        </label>
+                                        <select class="form-select" id="targetLanguage">
+                                            <option value="English" selected>English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="German">German</option>
+                                            <option value="Portuguese">Portuguese</option>
+                                            <option value="Japanese">Japanese</option>
+                                            <option value="Hindi">Hindi</option>
+                                            <option value="Chinese">Chinese</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Error Alert -->
+                                    <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span id="errorMessage"></span>
+                                    </div>
+                                    
+                                    <!-- Generate Button -->
+                                    <button type="submit" class="btn btn-generate" id="generateBtn">
+                                        <i class="bi bi-stars me-2"></i>
+                                        <span id="btnText">Generate AI Keywords</span>
+                                    </button>
+                                    
+                                    <!-- Info Box -->
+                                    <div class="info-box">
+                                        <i class="bi bi-magic me-2"></i>
+                                        <strong>AI-Powered Analysis</strong>
+                                        <p class="mb-0 mt-2 small">Our AI analyzes search intent, competition, and semantic relevance to provide actionable keyword insights.</p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel - Output Display -->
+                        <div class="col-lg-6">
+                            <div class="right-panel">
+                                <h2 class="mb-4">
+                                    <i class="bi bi-graph-up-arrow me-2"></i>Analysis Results
+                                </h2>
+                                
+                                <div class="output-container">
+                                    <!-- Empty State -->
+                                    <div id="emptyState" class="empty-state">
+                                        <i class="bi bi-file-earmark-bar-graph"></i>
+                                        <h5>No results yet</h5>
+                                        <p>Enter a topic and click generate to see results</p>
+                                    </div>
+                                    
+                                    <!-- Loading State -->
+                                    <div id="loadingState" class="loading-spinner">
+                                        <div class="spinner-border spinner-border-custom" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <h5 class="mt-3">Analyzing keywords...</h5>
+                                        <p class="text-muted">This may take a few moments</p>
+                                    </div>
+                                    
+                                    <!-- Output Content -->
+                                    <div id="outputContent" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center mt-4">
+                    <p class="mb-0 footer-text">
+                        <i class="bi bi-cpu-fill me-2"></i>Powered by Advanced AI SEO Analysis Engine
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Generate unique session ID
+        function generateSessionId() {
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 11);
+            return `session_${timestamp}_${random}`;
+        }
+
+        // Initialize session ID on page load
+        const sessionId = generateSessionId();
+        document.getElementById('sessionId').textContent = sessionId;
+
+        // Get DOM elements
+        const form = document.getElementById('keywordForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btnText');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const outputContent = document.getElementById('outputContent');
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('d-none');
+            setTimeout(() => {
+                errorAlert.classList.add('d-none');
+            }, 5000);
+        }
+
+        // Show loading state
+        function showLoading() {
+            emptyState.style.display = 'none';
+            outputContent.style.display = 'none';
+            loadingState.style.display = 'block';
+            generateBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+        }
+
+        // Show output
+        function showOutput(html) {
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'none';
+            outputContent.style.display = 'block';
+            outputContent.innerHTML = html;
+            generateBtn.disabled = false;
+            btnText.innerHTML = '<i class="bi bi-stars me-2"></i>Generate AI Keywords';
+        }
+
+        // Reset to empty state
+        function resetToEmpty() {
+            loadingState.style.display = 'none';
+            outputContent.style.display = 'none';
+            emptyState.style.display = 'block';
+            generateBtn.disabled = false;
+            btnText.innerHTML = '<i class="bi bi-stars me-2"></i>Generate AI Keywords';
+        }
+
+        // Generate fallback HTML from JSON
+        function generateFallbackHTML(data) {
+            return `
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>Keyword Analysis Complete</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="bg-light p-3 rounded" style="max-height: 600px; overflow-y: auto; color: #0F172A;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Form submit handler
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const topic = document.getElementById('topic').value.trim();
+            const targetCountry = document.getElementById('targetCountry').value;
+            const targetLanguage = document.getElementById('targetLanguage').value;
+
+            if (!topic) {
+                showError('Please enter a topic');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('https://n8n-hofxzheb.us-east-1.clawcloudrun.com/webhook/AllInSEO.ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        target_country: targetCountry,
+                        target_language: targetLanguage,
+                        session_id: sessionId,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Check for HTML in various possible fields
+                let htmlOutput = null;
+                if (data.html) {
+                    htmlOutput = data.html;
+                } else if (data.output) {
+                    htmlOutput = data.output;
+                } else if (data.result) {
+                    htmlOutput = data.result;
+                } else if (typeof data === 'string') {
+                    htmlOutput = data;
+                } else {
+                    // Fallback: convert JSON to formatted HTML
+                    htmlOutput = generateFallbackHTML(data);
+                }
+
+                showOutput(htmlOutput);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Failed to generate keywords: ${error.message}`);
+                resetToEmpty();
+            }
+        });
+
+        // Optional: Add example data button for testing
+        document.getElementById('topic').value = 'AI tools for digital marketing';
+    </script>
+</body>
+</html>
